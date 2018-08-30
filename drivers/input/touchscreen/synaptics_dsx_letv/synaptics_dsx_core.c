@@ -39,6 +39,7 @@
 #include <linux/input.h>
 #include <linux/gpio.h>
 #include <linux/platform_device.h>
+#include <linux/pm_wakeup.h>
 #include <linux/regulator/consumer.h>
 #include <linux/input/synaptics_dsx_letv.h>
 #include "synaptics_dsx_core.h"
@@ -210,6 +211,12 @@ static ssize_t synaptics_rmi4_wake_gesture_show(struct device *dev,
 		struct device_attribute *attr, char *buf);
 
 static ssize_t synaptics_rmi4_wake_gesture_store(struct device *dev,
+		struct device_attribute *attr, const char *buf, size_t count);
+
+static ssize_t synaptics_rmi4_stay_awake_show(struct device *dev,
+		struct device_attribute *attr, char *buf);
+
+static ssize_t synaptics_rmi4_stay_awake_store(struct device *dev,
 		struct device_attribute *attr, const char *buf, size_t count);
 
 static ssize_t synaptics_rmi4_virtual_key_map_show(struct kobject *kobj,
@@ -645,6 +652,11 @@ static struct device_attribute attrs[] = {
 	__ATTR(wake_gesture, (S_IRUGO | S_IWUSR | S_IWGRP),
 			synaptics_rmi4_wake_gesture_show,
 			synaptics_rmi4_wake_gesture_store),
+
+	__ATTR(stay_awake, (S_IRUGO | S_IWUSR | S_IWGRP),
+			synaptics_rmi4_stay_awake_show,
+			synaptics_rmi4_stay_awake_store),
+
 };
 
 static struct kobj_attribute virtual_key_map_attr = {
@@ -832,6 +844,31 @@ static ssize_t synaptics_rmi4_wake_gesture_store(struct device *dev,
 
 	if (rmi4_data->f11_wakeup_gesture || rmi4_data->f12_wakeup_gesture)
 		rmi4_data->enable_wakeup_gesture = input;
+
+	return count;
+}
+
+static ssize_t synaptics_rmi4_stay_awake_show(struct device *dev,
+		struct device_attribute *attr, char *buf)
+{
+	struct synaptics_rmi4_data *rmi4_data = dev_get_drvdata(dev);
+
+	return snprintf(buf, PAGE_SIZE, "%u\n",
+			rmi4_data->stay_awake);
+}
+
+static ssize_t synaptics_rmi4_stay_awake_store(struct device *dev,
+		struct device_attribute *attr, const char *buf, size_t count)
+{
+	unsigned int input;
+	struct synaptics_rmi4_data *rmi4_data = dev_get_drvdata(dev);
+
+	if (sscanf(buf, "%u", &input) != 1)
+		return -EINVAL;
+
+	input = input > 0 ? 1 : 0;
+
+    rmi4_data->stay_awake = input;
 
 	return count;
 }
@@ -1672,6 +1709,8 @@ static irqreturn_t synaptics_rmi4_irq(int irq, void *data)
 	if (gpio_get_value(bdata->irq_gpio) != bdata->irq_on_state)
 		goto exit;
 
+    pm_wakeup_event(&rmi4_data->pdev->dev,50);
+
 	synaptics_rmi4_sensor_report(rmi4_data, true);
 
 exit:
@@ -1686,6 +1725,8 @@ static int synaptics_rmi4_int_enable(struct synaptics_rmi4_data *rmi4_data,
 	unsigned char zero = 0x00;
 	unsigned char *intr_mask;
 	unsigned short intr_addr;
+
+	dev_err(rmi4_data->pdev->dev.parent, "%s:  enable=%d\n", __func__, enable);
 
 	intr_mask = rmi4_data->intr_mask;
 
@@ -1720,6 +1761,8 @@ static int synaptics_rmi4_irq_enable(struct synaptics_rmi4_data *rmi4_data,
 	const struct synaptics_dsx_board_data *bdata =
 			rmi4_data->hw_if->board_data;
 
+	dev_err(rmi4_data->pdev->dev.parent, "%s:  enable=%d, attn_only=%d\n", __func__, enable, attn_only);
+
 	if (attn_only) {
 		retval = synaptics_rmi4_int_enable(rmi4_data, enable);
 		return retval;
@@ -1750,6 +1793,7 @@ static int synaptics_rmi4_irq_enable(struct synaptics_rmi4_data *rmi4_data,
 		if (retval < 0)
 			return retval;
 
+        enable_irq_wake(rmi4_data->irq);
 		rmi4_data->irq_enabled = true;
 	} else {
 		if (rmi4_data->irq_enabled) {
@@ -4203,6 +4247,8 @@ static int synaptics_rmi4_probe(struct platform_device *pdev)
 
 	platform_set_drvdata(pdev, rmi4_data);
 
+	device_init_wakeup(&pdev->dev, 1);
+
 	vir_button_map = bdata->vir_button_map;
 
 	retval = synaptics_rmi4_get_reg(rmi4_data, true);
@@ -4727,8 +4773,10 @@ static void synaptics_rmi4_early_suspend(struct early_suspend *h)
 			container_of(h, struct synaptics_rmi4_data,
 			early_suspend);
 
-	if (rmi4_data->stay_awake)
+	if (rmi4_data->stay_awake) {
+        enable_irq_wake(rmi4_data->irq);
 		return;
+    }
 
 	if (rmi4_data->enable_wakeup_gesture) {
 		synaptics_rmi4_wakeup_gesture(rmi4_data, true);
@@ -4764,8 +4812,10 @@ static void synaptics_rmi4_late_resume(struct early_suspend *h)
 			container_of(h, struct synaptics_rmi4_data,
 			early_suspend);
 
-	if (rmi4_data->stay_awake)
-		return;
+	if (rmi4_data->stay_awake) {
+        disable_irq_wake(rmi4_data->irq);
+	 	if( !rmi4_data->suspend ) return;
+    }
 
 	if (rmi4_data->enable_wakeup_gesture) {
 		synaptics_rmi4_wakeup_gesture(rmi4_data, false);
@@ -4813,8 +4863,10 @@ static int synaptics_rmi4_suspend(struct device *dev)
 	int retval;
 #endif
 
-	if (rmi4_data->stay_awake)
+	if (rmi4_data->stay_awake) {
+        enable_irq_wake(rmi4_data->irq);
 		return 0;
+    }
 #ifdef ESD_CHECK_SUPPORT
 	synaptics_rmi4_esd_switch(rmi4_data,SWITCH_OFF);
 #endif
@@ -4868,8 +4920,10 @@ static int synaptics_rmi4_resume(struct device *dev)
 	const struct synaptics_dsx_board_data *bdata =
 				rmi4_data->hw_if->board_data;
 
-	if (rmi4_data->stay_awake)
-		return 0;
+	if (rmi4_data->stay_awake) {
+        disable_irq_wake(rmi4_data->irq);
+	 	if( !rmi4_data->suspend ) return 0;
+    }
 
 #ifdef CONFIG_MACH_LEECO_ZL1
 	if (rmi4_data->ts_pinctrl) {
