@@ -1,5 +1,4 @@
-/*
- * Copyright (c) 2017, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2016, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -11,18 +10,15 @@
  * GNU General Public License for more details.
  */
 
+
 /dts-v1/;
 
-#include "apq8053-lite.dtsi"
-#include "apq8053-lite-dragon.dtsi"
+#include "msm8996pro.dtsi"
+#include "msm-pmi8996.dtsi"
+#include "msm8996-le_x2-pvt.dtsi"
 
 / {
-	model = "Qualcomm Technologies, Inc. APQ8053 Lite DragonBoard";
-	compatible = "qcom,apq8053-lite-dragonboard", "qcom,apq8053",
-			"qcom,dragonboard";
-	qcom,board-id = <0x0102000a 0>;
-};
-
-&blsp2_uart0 {
-	status = "okay";
+	model = "Letv Technologies, Inc. MSM 8996pro + PMI8996 LE_X2-PVT";
+	compatible = "qcom,msm8996-mtp", "qcom,msm8996", "qcom,mtp";
+	qcom,board-id = <8 0x2e>;
 };
