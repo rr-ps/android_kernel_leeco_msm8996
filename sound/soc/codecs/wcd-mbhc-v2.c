@@ -1225,6 +1225,10 @@ exit:
 	return spl_hs;
 }
 
+static int disable_hp_detect __read_mostly;
+
+module_param(disable_hp_detect, int, 0664);
+
 static void wcd_correct_swch_plug(struct work_struct *work)
 {
 	struct wcd_mbhc *mbhc;
@@ -1256,6 +1260,18 @@ static void wcd_correct_swch_plug(struct work_struct *work)
 	mbhc = container_of(work, struct wcd_mbhc, correct_plug_swch);
 	codec = mbhc->codec;
 
+
+#ifdef CONFIG_MACH_LEECO
+	if (disable_hp_detect) {
+		pr_err("%s: headset detection disabled\n", __func__);
+		mbhc->btn_press_intr = false;
+		reinit_completion(&mbhc->btn_press_compl);
+		goto exit;
+	}
+
+restart_correct_detect:
+#endif
+
 	/*
 	 * Enable micbias/pullup for detection in correct work.
 	 * This work will get scheduled from detect_plug_type which
@@ -1284,17 +1300,21 @@ static void wcd_correct_swch_plug(struct work_struct *work)
 	WCD_MBHC_REG_READ(WCD_MBHC_BTN_RESULT, btn_result);
 	WCD_MBHC_REG_READ(WCD_MBHC_HS_COMP_RESULT, hs_comp_res);
 
+    pr_err("%s rc=%d, btn_result=%d, hs_comp_res=%d\n", __func__, rc, btn_result, hs_comp_res);
+
 	if (!rc) {
 		pr_debug("%s No btn press interrupt\n", __func__);
 		if (!btn_result && !hs_comp_res)
 			plug_type = MBHC_PLUG_TYPE_HEADSET;
 		else if (!btn_result && hs_comp_res)
-			plug_type = MBHC_PLUG_TYPE_HIGH_HPH;
+			plug_type = MBHC_PLUG_TYPE_HEADSET;
 		else
 			plug_type = MBHC_PLUG_TYPE_INVALID;
 	} else {
 		if (!btn_result && !hs_comp_res)
 			plug_type = MBHC_PLUG_TYPE_HEADPHONE;
+		else if (!btn_result && hs_comp_res)
+			plug_type = MBHC_PLUG_TYPE_HEADSET;
 		else
 			plug_type = MBHC_PLUG_TYPE_INVALID;
 	}
@@ -1319,14 +1339,22 @@ static void wcd_correct_swch_plug(struct work_struct *work)
 	if ((plug_type == MBHC_PLUG_TYPE_HEADSET ||
 #ifdef CONFIG_MACH_LEECO
 	     /* Treat hs_comp_res as a valid plug. */
-	     plug_type == MBHC_PLUG_TYPE_HIGH_HPH) &&
+	     plug_type == MBHC_PLUG_TYPE_HIGH_HPH || 
+	     plug_type == MBHC_PLUG_TYPE_HEADPHONE ) &&
 #else
-	     plug_type == MBHC_PLUG_TYPE_HEADPHONE) &&
+	     plug_type == MBHC_PLUG_TYPE_HEADPHONE ) &&
 #endif
 	    (!wcd_swch_level_remove(mbhc))) {
 		WCD_MBHC_RSC_LOCK(mbhc);
 		wcd_mbhc_find_plug_and_report(mbhc, plug_type);
 		WCD_MBHC_RSC_UNLOCK(mbhc);
+#ifdef CONFIG_MACH_LEECO
+		if (plug_type == MBHC_PLUG_TYPE_HEADSET) {
+			//headset_reported = true;
+			pr_info("%s: Valid headset reported, goto report!!\n", __func__);
+			goto report;
+		}
+#endif
 	}
 
 correct_plug_type:
