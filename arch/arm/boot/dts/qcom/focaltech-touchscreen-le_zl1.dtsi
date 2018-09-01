@@ -5,7 +5,7 @@
 			reg = <0x38>;
 			interrupt-parent = <&tlmm>;
 			interrupts = <125 0x8>;
-/*			vdd-supply = <&pm8994_l22>;*/
+			/* vdd-supply = <&pm8994_l22>; */
 			vcc_i2c-supply = <&pm8994_l14>;
 			pinctrl-names = "pmx_ts_active", "pmx_ts_suspend";
 			pinctrl-0 = <&focaltech_irq_active &focaltech_reset_active>;
@@ -36,7 +36,6 @@
 			focaltech,fw-delay-readid-ms = <10>;
 			focaltech,fw-delay-era-flsh-ms = <2000>;
 			status = "disabled";
-
 		};
 	};
 };

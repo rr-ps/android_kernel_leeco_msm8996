@@ -12,7 +12,6 @@
 
 &soc {
 	sound-9335 {
-		compatible = "qcom,msm8996-asoc-snd-tasha";
 		qcom,model = "msm8996-tasha-mtp-snd-card";
 
 		qcom,audio-routing =
@@ -74,9 +73,8 @@
 		/delete-property/ qcom,hph-en1-gpio;
 		/delete-property/ qcom,hph-en0-gpio;
 		qcom,us-euro-gpios = <&tlmm 21 0>;
-		qcom,wsa-max-devs = <0>;
-		qcom,wsa-devs = <0>;
-		qcom,wsa-aux-dev-prefix = <0>;
+		/delete-property/ qcom,wsa-devs;
+		/delete-property/ qcom,wsa-aux-dev-prefix;
 	};
 
 	qcom,msm-dai-mi2s {
@@ -92,7 +90,10 @@
 			pinctrl-0 = <&pri_mi2s_active &pri_mi2s_mclk_active &pri_mi2s_sd0_active &pri_mi2s_sd1_active>;
 			pinctrl-1 = <&pri_mi2s_sleep &pri_mi2s_mclk_sleep &pri_mi2s_sd0_sleep &pri_mi2s_sd1_sleep>;*/
 		};
+	};
 
+	qcom,msm-dai-mi2s {
+		compatible = "qcom,msm-dai-mi2s";
 		dai_tert_mi2s: qcom,msm-dai-q6-mi2s-tert {
 			compatible = "qcom,msm-dai-q6-mi2s";
 			qcom,msm-dai-q6-mi2s-dev-id = <2>;
@@ -102,7 +103,10 @@
 			pinctrl-0 = <&tert_mi2s_active &tert_mi2s_sd0_active &tert_mi2s_sd1_active>;
 			pinctrl-1 = <&tert_mi2s_sleep &tert_mi2s_sd0_sleep &tert_mi2s_sd1_sleep>;
 		};
+	};
 
+	qcom,msm-dai-mi2s {
+		compatible = "qcom,msm-dai-mi2s";
 		dai_quat_mi2s: qcom,msm-dai-q6-mi2s-quat {
 			compatible = "qcom,msm-dai-q6-mi2s";
 			qcom,msm-dai-q6-mi2s-dev-id = <3>;
@@ -129,6 +133,7 @@
 		imon-r-slot = <1>;
 		maxim,98927-reset-gpio = <&tlmm 90 0>;
 	};
+
 	max98927@3a {
 		compatible = "maxim,max98927R";
 		reg = <0x3a>;

@@ -1,5 +1,4 @@
 #include "msm8996-le_x2-dvt1.1.dtsi"
-
 &mdss_dsi0 {
 	qcom,dsi-pref-prim-pan = <&dsi_dual_sharp_cmd>;
 	vddio-supply = <&pm8994_l14>;

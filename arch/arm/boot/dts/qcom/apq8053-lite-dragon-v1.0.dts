@@ -1,4 +1,5 @@
-/* Copyright (c) 2017, The Linux Foundation. All rights reserved.
+/*
+ * Copyright (c) 2017, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -10,22 +11,18 @@
  * GNU General Public License for more details.
  */
 
-&soc {
-	qcom,ion {
-		compatible = "qcom,msm-ion";
-		#address-cells = <1>;
-		#size-cells = <0>;
+/dts-v1/;
 
-		system_heap: qcom,ion-heap@25 {
-			reg = <25>;
-			memory-region = <&ion_system>;
-			qcom,ion-heap-type = "CARVEOUT";
-		};
+#include "apq8053-lite.dtsi"
+#include "apq8053-lite-dragon.dtsi"
 
-		qcom,ion-heap@28 { /* Audio Heap */
-			reg = <28>;
-			memory-region = <&ion_audio>;
-			qcom,ion-heap-type = "CARVEOUT";
-		};
-	};
+/ {
+	model = "Qualcomm Technologies, Inc. APQ8053 Lite DragonBoard";
+	compatible = "qcom,apq8053-lite-dragonboard", "qcom,apq8053",
+			"qcom,dragonboard";
+	qcom,board-id = <0x0102000a 0>;
+};
+
+&blsp2_uart0 {
+	status = "okay";
 };

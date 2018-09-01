@@ -316,42 +316,19 @@
 			compatible = "qcom,qpnp-fg";
 			#address-cells = <1>;
 			#size-cells = <1>;
-
-            qcom,resume-soc-raw = <245>;
-			status = "okay";
-			qcom,bcl-lm-threshold-ma = <127>;
-			qcom,bcl-mh-threshold-ma = <405>;
-			qcom,fg-iterm-ma = <220>;
-			qcom,fg-chg-iterm-ma = <150>;
-            qcom,fg-delta-soc = <1>;
-			qcom,cycle-counter-en;
-			qcom,capacity-learning-on;
-			qcom,capacity-learning-feedback;
-            qcom,cl-max-start-soc = <30>;
-            qcom,fg-soc-max = <100>;
-            qcom,fg-soc-min = <0>;
-            qcom,fg-vbatt-low-threshold = <3050>;
-            qcom,fg-cutoff-voltage-mv = <3000>;
-			qcom,fg-cc-cv-threshold-mv = <4395>;
-			qcom,pmic-revid = <&pmi8994_revid>;
-			qcom,ext-sense-type;
-			qcom,cold-bat-decidegc = <0>;
-			qcom,cool-bat-decidegc = <150>;
-			qcom,warm-bat-decidegc = <450>;
-			qcom,hot-bat-decidegc = <550>;
-/*
 			qcom,resume-soc = <95>;
 			status = "okay";
 			qcom,bcl-lm-threshold-ma = <127>;
 			qcom,bcl-mh-threshold-ma = <405>;
-			qcom,fg-iterm-ma = <125>;
+			qcom,fg-iterm-ma = <250>;
 			qcom,fg-chg-iterm-ma = <100>;
 			qcom,cycle-counter-en;
 			qcom,capacity-learning-on;
 			qcom,fg-cc-cv-threshold-mv = <4340>;
 			qcom,pmic-revid = <&pmi8994_revid>;
 			qcom,capacity-learning-feedback;
-*/
+			qcom,vbat-estimate-diff-mv = <100>;
+
 			qcom,fg-soc@4000 {
 				status = "okay";
 				reg = <0x4000 0x100>;
@@ -537,7 +514,7 @@
 				qcom,qpnp-lab-ps-enable;
 				qcom,qpnp-lab-nfet-size = <100>;
 				qcom,qpnp-lab-pfet-size = <100>;
-				qcom,qpnp-lab-max-precharge-time = <500>;
+				qcom,qpnp-lab-max-precharge-time = <300>;
 			};
 		};
 
@@ -568,6 +545,7 @@
 			qcom,sync-dly-us = <800>;
 			qcom,fs-curr-ua = <25000>;
 			qcom,cons-sync-write-delay-us = <1000>;
+			qcom,en-phase-stag;
 			qcom,led-strings-list = [00 01 02 03];
 			qcom,en-ext-pfet-sc-pro;
 		};
@@ -617,7 +595,7 @@
 				qcom,default-state = "off";
 				linux,name = "red";
 				linux,default-trigger =
-					"none";
+					"battery-charging";
 				qcom,start-idx = <0>;
 				qcom,ramp-step-ms = <100>;
 				qcom,duty-pcts = [00 03 06 09 0c 0f 12 15 18 1b 1e
@@ -636,7 +614,7 @@
 				qcom,max-current = <12>;
 				qcom,default-state = "off";
 				linux,name = "green";
-				linux,default-trigger = "none";
+				linux,default-trigger = "battery-full";
 				qcom,start-idx = <0>;
 				qcom,ramp-step-ms = <100>;
 				qcom,duty-pcts = [00 03 06 09 0c 0f 12 15 18 1b 1e
@@ -655,7 +633,7 @@
 				qcom,max-current = <12>;
 				qcom,default-state = "off";
 				linux,name = "blue";
-				linux,default-trigger = "none";
+				linux,default-trigger = "boot-indication";
 				qcom,start-idx = <0>;
 				qcom,ramp-step-ms = <100>;
 				qcom,duty-pcts = [00 03 06 09 0c 0f 12 15 18 1b 1e
