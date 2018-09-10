@@ -2265,6 +2265,9 @@ static int get_monotonic_soc_raw(struct fg_chip *chip)
 #define MISSING_CAPACITY	100
 #define FULL_CAPACITY		100
 #define FULL_SOC_RAW		0xFF
+
+static int get_sram_prop_now(struct fg_chip *chip, unsigned int type);
+
 static int get_prop_capacity(struct fg_chip *chip)
 {
 	int msoc, rc;
@@ -2273,9 +2276,9 @@ static int get_prop_capacity(struct fg_chip *chip)
 	if (chip->use_last_soc && chip->last_soc) {
 		if (chip->last_soc == FULL_SOC_RAW)
 			return FULL_CAPACITY;
-		return DIV_ROUND_CLOSEST((chip->last_soc - 1) *
-				(FULL_CAPACITY - 2),
-				FULL_SOC_RAW - 2) + 1;
+		//return DIV_ROUND_CLOSEST((chip->last_soc - 1) *
+		//		(FULL_CAPACITY - 2),
+		//		FULL_SOC_RAW - 2) + 1;
 	}
 
 	if (chip->battery_missing)
@@ -2317,8 +2320,10 @@ static int get_prop_capacity(struct fg_chip *chip)
 		return FULL_CAPACITY;
 	}
 
-	return DIV_ROUND_CLOSEST((msoc - 1) * (FULL_CAPACITY - 2),
-			FULL_SOC_RAW - 2) + 1;
+
+    return (get_sram_prop_now(chip, FG_DATA_BATT_SOC) + 50)/100;
+	//return DIV_ROUND_CLOSEST((msoc - 1) * (FULL_CAPACITY - 2),
+	//		FULL_SOC_RAW - 2) + 1;
 }
 
 #define HIGH_BIAS	3
@@ -4702,7 +4707,8 @@ static int fg_power_get_property(struct power_supply *psy,
 			val->strval = chip->batt_type;
 		break;
 	case POWER_SUPPLY_PROP_CAPACITY:
-		val->intval = get_prop_capacity(chip);
+//		val->intval = get_prop_capacity(chip);
+        val->intval = (get_sram_prop_now(chip, FG_DATA_BATT_SOC) + 125)/100;
 		break;
 	case POWER_SUPPLY_PROP_CAPACITY_RAW:
 		val->intval = get_sram_prop_now(chip, FG_DATA_BATT_SOC);
@@ -4711,18 +4717,18 @@ static int fg_power_get_property(struct power_supply *psy,
 		val->intval = get_sram_prop_now(chip, FG_DATA_VINT_ERR);
 		break;
 	case POWER_SUPPLY_PROP_CURRENT_NOW:
-#ifdef CONFIG_MACH_LEECO
-		val->intval = get_real_time_prop_value(chip, FG_DATA_CURRENT);
-#else
+//#ifdef CONFIG_MACH_LEECO
+//		val->intval = get_real_time_prop_value(chip, FG_DATA_CURRENT);
+//#else
 		val->intval = get_sram_prop_now(chip, FG_DATA_CURRENT);
-#endif
+//#endif
 		break;
 	case POWER_SUPPLY_PROP_VOLTAGE_NOW:
-#ifdef CONFIG_MACH_LEECO
-		val->intval = get_real_time_prop_value(chip, FG_DATA_VOLTAGE);
-#else
+//#ifdef CONFIG_MACH_LEECO
+//		val->intval = get_real_time_prop_value(chip, FG_DATA_VOLTAGE);
+//#else
 		val->intval = get_sram_prop_now(chip, FG_DATA_VOLTAGE);
-#endif
+//#endif
 		break;
 	case POWER_SUPPLY_PROP_VOLTAGE_OCV:
 		val->intval = get_sram_prop_now(chip, FG_DATA_OCV);
