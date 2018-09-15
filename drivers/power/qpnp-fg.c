@@ -2272,6 +2272,7 @@ static int get_prop_capacity(struct fg_chip *chip)
 {
 	int msoc, rc;
 	bool vbatt_low_sts;
+    int cap = DEFAULT_CAPACITY;
 
 	if (chip->use_last_soc && chip->last_soc) {
 		if (chip->last_soc == FULL_SOC_RAW)
@@ -2326,7 +2327,7 @@ static int get_prop_capacity(struct fg_chip *chip)
     //    return FULL_CAPACITY;
     //}
     //return (sram_capacity + 50)/100;
-	int cap = DIV_ROUND_CLOSEST((msoc - 1) * (FULL_CAPACITY - 2),
+	cap = DIV_ROUND_CLOSEST((msoc - 1) * (FULL_CAPACITY - 2),
 			FULL_SOC_RAW - 2) + 1;
 
     pr_err("cap_now=%d\n",cap);
@@ -4725,18 +4726,18 @@ static int fg_power_get_property(struct power_supply *psy,
 		val->intval = get_sram_prop_now(chip, FG_DATA_VINT_ERR);
 		break;
 	case POWER_SUPPLY_PROP_CURRENT_NOW:
-//#ifdef CONFIG_MACH_LEECO
-//		val->intval = get_real_time_prop_value(chip, FG_DATA_CURRENT);
-//#else
+#ifdef CONFIG_MACH_LEECO
+		val->intval = get_real_time_prop_value(chip, FG_DATA_CURRENT);
+#else
 		val->intval = get_sram_prop_now(chip, FG_DATA_CURRENT);
-//#endif
+#endif
 		break;
 	case POWER_SUPPLY_PROP_VOLTAGE_NOW:
-//#ifdef CONFIG_MACH_LEECO
-//		val->intval = get_real_time_prop_value(chip, FG_DATA_VOLTAGE);
-//#else
+#ifdef CONFIG_MACH_LEECO
+		val->intval = get_real_time_prop_value(chip, FG_DATA_VOLTAGE);
+#else
 		val->intval = get_sram_prop_now(chip, FG_DATA_VOLTAGE);
-//#endif
+#endif
 		break;
 	case POWER_SUPPLY_PROP_VOLTAGE_OCV:
 		val->intval = get_sram_prop_now(chip, FG_DATA_OCV);
