@@ -166,7 +166,7 @@ int cpuidle_select(struct cpuidle_driver *drv, struct cpuidle_device *dev)
 	if (!drv || !dev || !dev->enabled)
 		return -EBUSY;
 
-	if (unlikely(use_deepest_state))
+	if (use_deepest_state)
 		return cpuidle_find_deepest_state(drv, dev);
 
 	return cpuidle_curr_governor->select(drv, dev);
@@ -200,7 +200,7 @@ int cpuidle_enter(struct cpuidle_driver *drv, struct cpuidle_device *dev,
  */
 void cpuidle_reflect(struct cpuidle_device *dev, int index)
 {
-	if (cpuidle_curr_governor->reflect && !unlikely(use_deepest_state))
+	if (cpuidle_curr_governor->reflect && !use_deepest_state)
 		cpuidle_curr_governor->reflect(dev, index);
 }
 
@@ -595,4 +595,5 @@ static int __init cpuidle_init(void)
 }
 
 module_param(off, int, 0444);
+module_param(use_deepest_state, bool, 0664);
 core_initcall(cpuidle_init);
