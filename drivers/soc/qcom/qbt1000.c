@@ -712,8 +712,10 @@ out:
 	if (rc)
 		atomic_inc(&drvdata->available);
 
-    if( !rc ) 
+    if( !rc )  {
+		dev_err(drvdata->dev, "%s: Sensor opened\n", __func__);
         __pm_stay_awake(&drvdata->w_lock);
+    }
 
 	return rc;
 }
@@ -741,6 +743,7 @@ static int qbt1000_release(struct inode *inode, struct file *file)
 
 	atomic_inc(&drvdata->available);
 
+    dev_err(drvdata->dev, "%s: Sensor closed\n",__func__);
     __pm_relax(&drvdata->w_lock);
 
 	return 0;
