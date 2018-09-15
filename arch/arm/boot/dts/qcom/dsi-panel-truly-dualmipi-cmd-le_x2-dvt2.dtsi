@@ -14,13 +14,17 @@
 	dsi_dualdsi_truly_cmd: qcom,mdss_dsi_truly_qhd_dualdsi_cmd_le_x2 {
 		qcom,mdss-dsi-panel-name = "le_x2_mdss_dsi_sharp_qhd_dualdsi_cmd";
 		qcom,mdss-dsi-panel-type = "dsi_cmd_mode";
+
+        qcom,mdss-dsi-pan-enable-dynamic-fps;
+        qcom,mdss-dsi-pan-fps-update = "dfps_suspend_resume_mode";
 		qcom,mdss-dsi-panel-framerate = <60>;
+
 		qcom,mdss-dsi-virtual-channel-id = <0>;
 		qcom,mdss-dsi-stream = <0>;
 		qcom,mdss-dsi-panel-width = <720>;
 		qcom,mdss-dsi-panel-height = <2560>;
-		qcom,mdss-pan-physical-width-dimension = <71>;
-		qcom,mdss-pan-physical-height-dimension = <126>;
+		qcom,mdss-pan-physical-width-dimension = <68>;
+		qcom,mdss-pan-physical-height-dimension = <121>;
 		qcom,mdss-dsi-h-front-porch = <80>;
 		qcom,mdss-dsi-h-back-porch = <60>;
 		qcom,mdss-dsi-h-pulse-width = <10>;
@@ -60,7 +64,7 @@
 		qcom,mdss-dsi-t-clk-pre = <0x2d>;
 		qcom,mdss-mdp-transfer-time-us = <10000>;
 		qcom,mdss-dsi-bl-max-level = <4095>;
-		qcom,mdss-brightness-max-level = <4095>;
+		qcom,mdss-brightness-max-level = <255>;
 		qcom,mdss-dsi-dma-trigger = "trigger_sw";
 		qcom,mdss-dsi-mdp-trigger = "none";
 		qcom,mdss-dsi-te-pin-select = <1>;
