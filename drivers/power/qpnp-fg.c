@@ -2321,9 +2321,17 @@ static int get_prop_capacity(struct fg_chip *chip)
 	}
 
 
-    return (get_sram_prop_now(chip, FG_DATA_BATT_SOC) + 50)/100;
-	//return DIV_ROUND_CLOSEST((msoc - 1) * (FULL_CAPACITY - 2),
-	//		FULL_SOC_RAW - 2) + 1;
+    //int sram_capacity = get_sram_prop_now(chip, FG_DATA_BATT_SOC);
+    //if( sram_capacity > 9950 ) {
+    //    return FULL_CAPACITY;
+    //}
+    //return (sram_capacity + 50)/100;
+	int cap = DIV_ROUND_CLOSEST((msoc - 1) * (FULL_CAPACITY - 2),
+			FULL_SOC_RAW - 2) + 1;
+
+    pr_err("cap_now=%d\n",cap);
+
+    return cap;
 }
 
 #define HIGH_BIAS	3
@@ -2631,7 +2639,7 @@ static int update_sram_data(struct fg_chip *chip, int *resched_ms)
 		case FG_DATA_BATT_SOC:
 			fg_data[i].value = div64_s64((temp * 10000),
 							FULL_PERCENT_3B);
-            pr_err("cap_now=%d\n",fg_data[i].value);
+            pr_err("cap_soc_now=%d\n",fg_data[i].value);
 			break;
 		case FG_DATA_CC_CHARGE:
 			temp = twos_compliment_extend(temp, fg_data[i].len);
