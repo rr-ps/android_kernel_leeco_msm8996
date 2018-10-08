@@ -714,7 +714,7 @@ out:
 
     if( !rc )  {
 		dev_err(drvdata->dev, "%s: Sensor opened\n", __func__);
-        __pm_stay_awake(&drvdata->w_lock);
+        //__pm_stay_awake(&drvdata->w_lock);
     }
 
 	return rc;
@@ -744,7 +744,7 @@ static int qbt1000_release(struct inode *inode, struct file *file)
 	atomic_inc(&drvdata->available);
 
     dev_err(drvdata->dev, "%s: Sensor closed\n",__func__);
-    __pm_relax(&drvdata->w_lock);
+    //__pm_relax(&drvdata->w_lock);
 
 	return 0;
 }
@@ -1389,20 +1389,20 @@ static int qbt1000_suspend(struct device *dev)
 
 static int qbt1000_runtime_suspend(struct device *dev)
 {
-	//struct platform_device *pdev = to_platform_device(dev);
-	//struct qbt1000_drvdata *drvdata = platform_get_drvdata(pdev);
+	struct platform_device *pdev = to_platform_device(dev);
+	struct qbt1000_drvdata *drvdata = platform_get_drvdata(pdev);
 
-	//__pm_relax(&drvdata->w_lock);
+	__pm_relax(&drvdata->w_lock);
 
 	return 0;
 };
 
 static int qbt1000_runtime_resume(struct device *dev)
 {
-	//struct platform_device *pdev = to_platform_device(dev);
-	//struct qbt1000_drvdata *drvdata = platform_get_drvdata(pdev);
+	struct platform_device *pdev = to_platform_device(dev);
+	struct qbt1000_drvdata *drvdata = platform_get_drvdata(pdev);
 
-	//__pm_stay_awake(&drvdata->w_lock);
+	__pm_stay_awake(&drvdata->w_lock);
 
 	return 0;
 };
