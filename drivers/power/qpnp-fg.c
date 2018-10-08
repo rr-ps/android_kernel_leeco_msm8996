@@ -4716,8 +4716,8 @@ static int fg_power_get_property(struct power_supply *psy,
 			val->strval = chip->batt_type;
 		break;
 	case POWER_SUPPLY_PROP_CAPACITY:
-//		val->intval = get_prop_capacity(chip);
-        val->intval = (get_sram_prop_now(chip, FG_DATA_BATT_SOC) + 125)/100;
+		val->intval = get_prop_capacity(chip);
+        //val->intval = (get_sram_prop_now(chip, FG_DATA_BATT_SOC) + 125)/100;
 		break;
 	case POWER_SUPPLY_PROP_CAPACITY_RAW:
 		val->intval = get_sram_prop_now(chip, FG_DATA_BATT_SOC);
