@@ -56,7 +56,7 @@ module_param(enable_mpss_IPCRTR_ws, bool, 0664);
 static bool enable_qcom_rx_wakelock_ws = true;
 module_param(enable_qcom_rx_wakelock_ws, bool, 0664);
 
-static bool enable_wcnss_filter_lock_ws = true;
+static bool enable_wcnss_filter_lock_ws = false;
 module_param(enable_wcnss_filter_lock_ws, bool, 0664);
 
 static bool enable_wlan_rx_wake_ws = true;
