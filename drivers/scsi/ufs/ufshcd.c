@@ -1393,7 +1393,8 @@ static void __ufshcd_release(struct ufs_hba *hba, bool no_sched)
 	hba->clk_gating.state = REQ_CLKS_OFF;
 	trace_ufshcd_clk_gating(dev_name(hba->dev), hba->clk_gating.state);
 
-	schedule_delayed_work(&hba->clk_gating.gate_work,
+	//schedule_delayed_work(&hba->clk_gating.gate_work,
+    queue_delayed_work(system_power_efficient_wq,&hba->clk_gating.gate_work,
 			      msecs_to_jiffies(hba->clk_gating.delay_ms));
 }
 
@@ -1537,7 +1538,8 @@ static void ufshcd_init_clk_gating(struct ufs_hba *hba)
 
 	snprintf(wq_name, ARRAY_SIZE(wq_name), "ufs_clk_ungating_%d",
 			hba->host->host_no);
-	hba->clk_gating.ungating_workq = create_singlethread_workqueue(wq_name);
+	//hba->clk_gating.ungating_workq = create_singlethread_workqueue(wq_name);
+	hba->clk_gating.ungating_workq = alloc_ordered_workqueue("%s", WQ_MEM_RECLAIM | WQ_UNBOUND,wq_name);
 
 	gating->is_enabled = true;
 

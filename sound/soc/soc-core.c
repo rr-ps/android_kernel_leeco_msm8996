@@ -849,7 +849,9 @@ int snd_soc_resume(struct device *dev)
 		soc_resume_deferred(&card->deferred_resume_work);
 	} else {
 		dev_dbg(dev, "ASoC: Scheduling resume work\n");
-		if (!schedule_work(&card->deferred_resume_work))
+		//if (!schedule_work(&card->deferred_resume_work))
+		//	dev_err(dev, "ASoC: resume work item may be lost\n");
+		if (!queue_work(system_power_efficient_wq, &card->deferred_resume_work))
 			dev_err(dev, "ASoC: resume work item may be lost\n");
 	}
 

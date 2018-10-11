@@ -1359,7 +1359,8 @@ static int __hif_pci_runtime_resume(struct pci_dev *pdev)
 	hif_pm_runtime_mark_last_busy(sc->dev);
 	sc->pm_stats.resumed++;
 
-	schedule_work(&sc->pm_work);
+	//schedule_work(&sc->pm_work);
+    queue_work(system_power_efficient_wq, &sc->pm_work);
 
 	return 0;
 out:

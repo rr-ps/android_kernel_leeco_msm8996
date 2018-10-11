@@ -239,6 +239,7 @@ int irq_set_affinity_locked(struct irq_data *data, const struct cpumask *mask,
 	if (desc->affinity_notify) {
 		kref_get(&desc->affinity_notify->kref);
 		schedule_work(&desc->affinity_notify->work);
+        //queue_work(system_power_efficient_wq, &desc->affinity_notify->work);
 	}
 	irqd_set(data, IRQD_AFFINITY_SET);
 

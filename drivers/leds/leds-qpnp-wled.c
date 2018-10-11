@@ -864,7 +864,8 @@ static void qpnp_wled_set(struct led_classdev *led_cdev,
 		level = wled->cdev.max_brightness;
 
 	wled->cdev.brightness = level;
-	schedule_work(&wled->work);
+	//schedule_work(&wled->work);
+    queue_work(system_power_efficient_wq, &wled->work);
 }
 
 static int qpnp_wled_set_disp(struct qpnp_wled *wled, u16 base_addr)

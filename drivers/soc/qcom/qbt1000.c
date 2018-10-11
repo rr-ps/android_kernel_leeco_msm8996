@@ -536,7 +536,8 @@ static void qbt1000_sns_notify(struct qmi_handle *handle,
 
 	switch (event) {
 	case QMI_RECV_MSG:
-		schedule_work(&drvdata->qmi_svc_rcv_msg);
+		//schedule_work(&drvdata->qmi_svc_rcv_msg);
+        queue_work(system_power_efficient_wq, &drvdata->qmi_svc_rcv_msg);
 		break;
 	default:
 		break;
@@ -553,10 +554,12 @@ static int qbt1000_qmi_svc_event_notify(struct notifier_block *this,
 
 	switch (code) {
 	case QMI_SERVER_ARRIVE:
-		schedule_work(&drvdata->qmi_svc_arrive);
+//		schedule_work(&drvdata->qmi_svc_arrive);
+        queue_work(system_power_efficient_wq, &drvdata->qmi_svc_arrive);
 		break;
 	case QMI_SERVER_EXIT:
-		schedule_work(&drvdata->qmi_svc_exit);
+//		schedule_work(&drvdata->qmi_svc_exit);
+        queue_work(system_power_efficient_wq, &drvdata->qmi_svc_exit);
 		break;
 	default:
 		break;

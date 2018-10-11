@@ -414,7 +414,9 @@ void fput(struct file *file)
 		}
 
 		if (llist_add(&file->f_u.fu_llist, &delayed_fput_list))
-			schedule_delayed_work(&delayed_fput_work, 1);
+            queue_delayed_work(system_power_efficient_wq, &delayed_fput_work,1);
+
+			//schedule_delayed_work(&delayed_fput_work, 1);
 	}
 }
 

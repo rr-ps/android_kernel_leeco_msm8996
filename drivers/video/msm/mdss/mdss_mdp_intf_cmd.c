@@ -722,8 +722,10 @@ int mdss_mdp_resource_control(struct mdss_mdp_ctl *ctl, u32 sw_event)
 				sw_event, 0x22);
 
 			/* start work item to gate */
-			if (mdata->enable_gate)
-				schedule_work(&ctx->gate_clk_work);
+			if (mdata->enable_gate) {
+//				schedule_work(&ctx->gate_clk_work);
+                queue_work(system_power_efficient_wq,&ctx->gate_clk_work);
+            }
 
 			/* start work item to shut down after delay */
 			queue_delayed_work(system_power_efficient_wq,
@@ -1207,8 +1209,10 @@ static void mdss_mdp_cmd_pingpong_done(void *arg)
 			       atomic_read(&ctx->koff_cnt));
 		if (sync_ppdone) {
 			atomic_inc(&ctx->pp_done_cnt);
-			if (!ctl->commit_in_progress)
-				schedule_work(&ctx->pp_done_work);
+			if (!ctl->commit_in_progress) {
+				//schedule_work(&ctx->pp_done_work);
+                queue_work(system_power_efficient_wq, &ctx->pp_done_work);
+            }
 
 			mdss_mdp_resource_control(ctl,
 				MDP_RSRC_CTL_EVENT_PP_DONE);
@@ -3195,7 +3199,8 @@ static int mdss_mdp_cmd_early_wake_up(struct mdss_mdp_ctl *ctl)
 	 * Only schedule if the interface has not been stopped.
 	 */
 	if (ctx && !ctx->intf_stopped)
-		queue_work(system_highpri_wq, &ctx->early_wakeup_clk_work);
+		//queue_work(system_highpri_wq, &ctx->early_wakeup_clk_work);
+        queue_work(system_power_efficient_wq, &ctx->early_wakeup_clk_work);
 	return 0;
 }
 

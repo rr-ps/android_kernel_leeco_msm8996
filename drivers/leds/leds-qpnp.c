@@ -1,4 +1,3 @@
-
 /* Copyright (c) 2012-2016, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -1824,8 +1823,10 @@ static void qpnp_led_set(struct led_classdev *led_cdev,
 	led->cdev.brightness = value;
 	if (led->in_order_command_processing)
 		queue_work(led->workqueue, &led->work);
-	else
-		schedule_work(&led->work);
+	else {
+        queue_delayed_work(system_power_efficient_wq,&led->work,0);
+		//schedule_work(&led->work);
+    }
 }
 
 static void __qpnp_led_work(struct qpnp_led_data *led,
@@ -1957,7 +1958,8 @@ static void qpnp_led_turn_off_delayed(struct work_struct *work)
 static void qpnp_led_turn_off(struct qpnp_led_data *led)
 {
 	INIT_DELAYED_WORK(&led->dwork, qpnp_led_turn_off_delayed);
-	schedule_delayed_work(&led->dwork,
+	//schedule_delayed_work(&led->dwork,
+    queue_delayed_work(system_power_efficient_wq,&led->dwork,
 		msecs_to_jiffies(led->turn_off_delay_ms));
 }
 
@@ -4170,7 +4172,7 @@ static int qpnp_leds_probe(struct spmi_device *spmi)
 			 * concurrency
 			 */
 			led->workqueue = alloc_ordered_workqueue
-							("led_workqueue", 0);
+							("led_workqueue", WQ_UNBOUND | WQ_POWER_EFFICIENT, 0);
 			if (!led->workqueue) {
 				rc = -ENOMEM;
 				goto fail_id_check;
