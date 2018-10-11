@@ -9749,7 +9749,7 @@ int letv_pd_notice_charger_in_parameter(int voltage, int mA)
 {
 	int i;
 
-	pr_smb(PR_STATUS, "pd detected: vol: %d, cur: %d\n", voltage, mA);
+	pr_err("pd detected: vol: %d, cur: %d\n", voltage, mA);
 	i = find_smaller_in_array(Vol_raw,
 			voltage, ARRAY_SIZE(Vol_raw));
 	if (i < 0) {
