@@ -39,6 +39,7 @@ DEFINE_MSM_MUTEX(msm_actuator_mutex);
 #define MAX_QVALUE 4096
 
 static bool use_focus_fix __read_mostly;
+static bool dont_use_leeco_fix __read_mostly;
 
 static struct v4l2_file_operations msm_actuator_v4l2_subdev_fops;
 static int32_t msm_actuator_power_up(struct msm_actuator_ctrl_t *a_ctrl);
@@ -325,7 +326,7 @@ static int msm_actuator_bivcm_handle_i2c_ops(
 					}
 				}
 			}
-			else if(strcmp(a_ctrl->project_name,"x2")==0)
+			else if(strcmp(a_ctrl->project_name,"x2")==0 && !dont_use_leeco_fix)
 			{
 				out[0] = i2c_byte1;
 
@@ -2550,6 +2551,7 @@ static struct msm_actuator msm_bivcm_actuator_table = {
 	},
 };
 
+module_param(dont_use_leeco_fix, bool, 0664);
 module_param(use_focus_fix, bool, 0664);
 module_init(msm_actuator_init_module);
 MODULE_DESCRIPTION("MSM ACTUATOR");
