@@ -1360,7 +1360,7 @@ static int __hif_pci_runtime_resume(struct pci_dev *pdev)
 	sc->pm_stats.resumed++;
 
 	//schedule_work(&sc->pm_work);
-    queue_work(system_power_efficient_wq, &sc->pm_work);
+    queue_work(system_unbound_wq, &sc->pm_work);
 
 	return 0;
 out:

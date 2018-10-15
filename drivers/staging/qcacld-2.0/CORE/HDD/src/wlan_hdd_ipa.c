@@ -3655,7 +3655,7 @@ int hdd_ipa_resume(hdd_context_t *hdd_ctx)
 		return 0;
 
 	//schedule_work(&hdd_ipa->pm_work);
-    queue_work(system_power_efficient_wq, &hdd_ipa->pm_work);
+    queue_work(system_unbound_wq, &hdd_ipa->pm_work);
 
 	adf_os_spin_lock_bh(&hdd_ipa->pm_lock);
 	hdd_ipa->suspended = false;
