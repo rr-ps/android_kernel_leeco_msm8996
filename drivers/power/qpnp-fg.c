@@ -2584,8 +2584,6 @@ static int64_t twos_compliment_extend(int64_t val, int nbytes)
 #define FULL_PERCENT_28BIT		0xFFFFFFF
 static int update_sram_data(struct fg_chip *chip, int *resched_ms)
 {
-
-    pr_err("BATT: update sram data\n");
 	int i, j, rc = 0;
 	u8 reg[4];
 	int64_t temp;
@@ -4728,18 +4726,18 @@ static int fg_power_get_property(struct power_supply *psy,
 		val->intval = get_sram_prop_now(chip, FG_DATA_VINT_ERR);
 		break;
 	case POWER_SUPPLY_PROP_CURRENT_NOW:
-//#ifdef CONFIG_MACH_LEECO
-//		val->intval = get_real_time_prop_value(chip, FG_DATA_CURRENT);
-//#else
+#ifdef CONFIG_MACH_LEECO
+		val->intval = get_real_time_prop_value(chip, FG_DATA_CURRENT);
+#else
 		val->intval = get_sram_prop_now(chip, FG_DATA_CURRENT);
-//#endif
+#endif
 		break;
 	case POWER_SUPPLY_PROP_VOLTAGE_NOW:
-//#ifdef CONFIG_MACH_LEECO
-//		val->intval = get_real_time_prop_value(chip, FG_DATA_VOLTAGE);
-//#else
+#ifdef CONFIG_MACH_LEECO
+		val->intval = get_real_time_prop_value(chip, FG_DATA_VOLTAGE);
+#else
 		val->intval = get_sram_prop_now(chip, FG_DATA_VOLTAGE);
-//#endif
+#endif
 		break;
 	case POWER_SUPPLY_PROP_VOLTAGE_OCV:
 		val->intval = get_sram_prop_now(chip, FG_DATA_OCV);
@@ -9261,7 +9259,6 @@ static int fg_resume(struct device *dev)
 	if (!chip->sw_rbias_ctrl)
 		return 0;
 
-    get_sram_prop_now(chip, FG_DATA_CURRENT);
 	check_and_update_sram_data(chip);
 	return 0;
 }
