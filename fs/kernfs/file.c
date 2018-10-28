@@ -885,7 +885,9 @@ void kernfs_notify(struct kernfs_node *kn)
 		kernfs_get(kn);
 		kn->attr.notify_next = kernfs_notify_list;
 		kernfs_notify_list = kn;
-		schedule_work(&kernfs_notify_work);
+		//schedule_work(&kernfs_notify_work);
+        //queue_work(system_unbound_wq,&kernfs_notify_work);
+    	schedule_work_on(cpumask_first(cpu_online_mask),&kernfs_notify_work);
 	}
 	spin_unlock_irqrestore(&kernfs_notify_lock, flags);
 }

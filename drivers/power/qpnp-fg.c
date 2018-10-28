@@ -2714,7 +2714,6 @@ static int read_beat(struct fg_chip *chip, u8 *beat_count)
 	return rc;
 }
 
-<<<<<<< HEAD
 /*
  * The FG_ALG_SYSCTL_1 word contains control bits for the
  * fuel-gauge algorithm, most of whose effect are not
@@ -2756,7 +2755,6 @@ static int fg_check_system_config(struct fg_chip *chip)
 	return rc;
 }
 
-=======
 #define SANITY_CHECK_PERIOD_MS	5000
 static void check_sanity_work(struct work_struct *work)
 {
@@ -2766,6 +2764,10 @@ static void check_sanity_work(struct work_struct *work)
 	int rc = 0;
 	u8 beat_count;
 	bool tried_once = false;
+
+	rc = fg_check_system_config(chip);
+	if (rc)
+		pr_err("Failed to check system config rc=%d\n", rc);
 
 	// Try one beat check once up-front to avoid the common
 	// case where the beat has changed and we don't need to hold
